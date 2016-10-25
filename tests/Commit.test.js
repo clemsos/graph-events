@@ -88,7 +88,7 @@ describe('Commit', () => {
     describe("LINK", () => {
       it('should add both source and target nodes', () =>{
         const instruction = new TopoQuery('Joe loves Jack')
-        let c = new Commit(instruction)
+        // let c = new Commit(instruction)
         // assert.equal(c.diff.add.length, 3)
         // console.log(c.diff)
       })

@@ -240,9 +240,23 @@ describe('commands', () => {
 
 })
 
-describe('queries OK', () => {
+describe('multiple queries', () => {
+
+  it('should parse multiple queries correctly', () => {
+    const a = new TopoQuery('John loves Jim')
+    assert.deepEqual( a.selector, {'id' : 'John', 'elType' : 'nodes'} )
+    assert.equal(a.action, 'LINK')
+    assert.deepEqual( a.options, {'id' : 'Jim', 'elType': 'nodes'})
+
+    const b = new TopoQuery('Jim likes Matt')
+    assert.deepEqual( b.selector, {'id' : 'Jim', 'elType' : 'nodes'} )
+    assert.equal(b.action, 'LINK')
+    assert.deepEqual( b.options, {'id' : 'Matt', 'elType': 'nodes'})
+  })
+
   it('should parse all those queries correctly', () => {
     const instructions = queries.map(q => new TopoQuery(q))
     assert.equal(queries.length, instructions.length)
   })
+
 })
