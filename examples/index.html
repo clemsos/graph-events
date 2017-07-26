@@ -3,66 +3,68 @@
 
 <head>
     <meta charset="utf-8">
-    <title>GraphEvent - Example</title>
+    <title>Graph Event - Example</title>
 
     <style>
         html, body{
           height:100%;
-        }
-
-        body {
+          font-family: sans-serif;
+          font-size: 10pt;
           margin: 0;
           padding: 0;
           position: relative;
         }
 
+        #wrapper {
+          margin: auto;
+          width : 80vh;
+        }
+
         h1 {
-          padding: 0;
           margin: 0;
-          opacity: 0.5;
-          font-size: 1em;
+          padding: 30px 0;
         }
 
-        #log {
-          position: absolute;
-          bottom:20px;
-          right: 0;
-          height: 300px;
-          /*max-height:100px;*/
-          max-width:50%;
-          overflow-y: scroll;
+        a {
+          text-decoration: none:line-through;
+          color : #777;
         }
 
-        #commit {
-          position: absolute;
-          top:0;
-          left: 0;
+        a.selected,
+        a.selected:visited {
+          color : black
+        }
+
+        #event {
         }
 
         #cy {
-          position: fixed;
+          position: absolute;
           z-index: -999;
-          top:0;
-          left: 0;
-          width:100% ;
-          height:100% ;
+          width:50% ;
+          height:50% ;
           background: #EEE;
         }
+
+
     </style>
 </head>
 <body>
-  <h1>Topoquery example</h1>
   <div id="wrapper">
 
-    <form name="queryForm" onsubmit="event.preventDefault(); submitQuery()" method="post">
-      Query: <input type="text" name="query">
-      <input type="submit" value="Submit">
-    </form>
+    <h1>graph-events basic example</h1>
 
+    <p>
+      This example demonstrates how networks can be stored as events.
+      <br>
+      Click on the event to show them
+    </p>
+
+    <div id="events"></div>
+    <div id="eventsCount"></div>
+    <br>
     <div id="cy"></div>
-    <ul id="log"></ul>
-    <div id="commitsCount"></div>
-    <div id="commits"></div>
+
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/2.7.7/cytoscape.min.js" ></script>
@@ -70,146 +72,192 @@
 
   <script>
 
-    // const commits = [],
-    //       queries = []
-    //
-    // const logger = document.getElementById('log')
-    // const commitsList = document.getElementById('commits')
-    // const cy = initCytoscape()
-    //
-    // function submitQuery() {
-    //
-    //   let q = document.forms["queryForm"]["query"].value
-    //
-    //   if (q) {
-    //
-    //     let topo = new TopoQuery(q)
-    //     let commit = new Commit(topo)
-    //
-    //     // clear list
-    //     commitsList.innerHTML = ''
-    //     logger.innerHTML = ''
-    //
-    //     // check if changes
-    //     if(commit.diff.add.length || commit.diff.update.length || commit.diff.delete.length) {
-    //       commits.push(commit) // store commits
-    //       queries.push(topo)
-    //     }
-    //
-    //     // write log
-    //     queries.map( (q,i) => { // add items
-    //       let li = document.createElement('li')
-    //       let a = document.createElement('a')
-    //         a.innerHTML= q.q
-    //         a.href= `#${commits[i].id}`
-    //         a.setAttribute('data-commit', commits[i].id)
-    //         a.onclick = click
-    //       commitsList.appendChild(li)
-    //         .appendChild(a)
-    //     })
-    //
-    //     // add commits number
-    //     document.getElementById('commitsCount').innerHTML = commits.length + " commits."
-    //
-    //     // create graph
-    //     let g = []
-    //
-    //     commits.forEach( commit => {
-    //       console.log(commit)
-    //       log('---- apply commit '+ commit.id + ' ----')
-    //
-    //       // ADD
-    //       if(commit.diff.add.length) {
-    //         log('ADD ' + commit.diff.add.length + ' elements')
-    //         g = g.concat(commit.diff.add)
-    //       }
-    //
-    //       // DELETE
-    //       if(commit.diff.delete.length) {
-    //         log('DELETE '+commit.diff.delete.length+' nodes')
-    //         g = g.filter(el => commit.diff.delete.indexOf(el.id))
-    //       }
-    //     })
-    //
-    //     //parse elements for display in cytoscape
-    //     g = g.map( (el,i) => {
-    //
-    //       let element = {
-    //         group : el.elType,
-    //         data : {
-    //           id : el.id || randomId()
-    //         }
-    //       }
-    //       delete el.id // remove id to prevent value override
-    //
-    //       // parse existing values
-    //       Object.keys(el).map(key => element.data[key] = el[key])
-    //
-    //       if (el.elType == "nodes")
-    //         element.position = {
-    //           x: i*75 + 200,
-    //           y : i%2*150 + 200
-    //         }
-    //       else if (el.elType == "edges") {
-    //         element.source = el.source
-    //         element.target = el.target
-    //       }
-    //
-    //       return element
-    //     })
-    //
-    //     console.log(g)
-    //     log(g.length + " elements in the graph")
-    //
-    //     cy.remove('*')
-    //     cy.json({ elements : g })
-    //   }
-    // }
-    //
-    // function click(e) {
-    //   console.log(this.dataset.commit)
-    // }
-    //
-    // function log(message) {
-    //   logger.innerHTML = logger.innerHTML + '<br>' + message
-    // }
-    //
-    // function randomId() {
-    //     return ("0000" + (Math.random()*Math.pow(36,4) << 0).toString(36)).slice(-4)
-    // }
-    //
-    // // draw empty graph
-    // function initCytoscape() {
-    //   return cytoscape({
-    //     container: document.getElementById('cy'),
-    //     boxSelectionEnabled: false,
-    //     layout: {　name: 'preset'　},
-    //     style: [
-    //       {
-    //         selector: 'node',
-    //         style: {
-    //           'height': 20,
-    //           'width': 20,
-    //           'background-color': d => d.data('color') ? d.data('color') : '#18e018',
-    //           'label': d => d.data('name') ? d.data('name') : ''
-    //         }
-    //       },
-    //
-    //       {
-    //         selector: 'edge',
-    //         style: {
-    //           'curve-style': 'haystack',
-    //           'haystack-radius': 0,
-    //           'width': 5,
-    //           'opacity': 0.5,
-    //           'line-color': '#a2efa2'
-    //         }
-    //       }
-    //     ]
-    //   })
-    // }
+    // init with some data and events
+    const nodes = [
+      { id : 1, label : "Node A", type : "node" },
+      { id : 2, label : "Node B", type : "node" },
+      { id : 3, label : "Node C", type : "node" },
+      { id : 4, label : "Node D", type : "node" },
+      { id : 5, label : "Node E", type : "node" }
+    ]
+
+    const edges = [
+      { source : 1, target : 2, label : "Edge A", type : "edge" },
+      { source : 2, target : 3, label : "Edge B", type : "edge" },
+      { source : 3, target : 1, label : "Edge C", type : "edge" },
+      { source : 3, target : 4, label : "Edge D", type : "edge" },
+      { source : 2, target : 4, label : "Edge E", type : "edge" }
+    ]
+
+    // create nodes and edges
+    const eventCreateNodes = new GraphEvent({
+      action : "create",
+      data : nodes
+    })
+
+    const eventCreateEdges = new GraphEvent({
+      action : "create",
+      data : edges
+    })
+
+    // make some changes
+    const eventUpdateNodeB = new GraphEvent({
+      action : "update",
+      selector : { id : 2, type : "node" },
+      data : { label : "My Very Cool Node Inc." }
+    })
+
+    const eventDeleteNodeA = new GraphEvent({
+      action : "delete",
+      selector : { id : 5, type : "node" }
+    })
+
+    const events = [
+      eventCreateNodes,
+      eventCreateEdges,
+      eventUpdateNodeB,
+      eventDeleteNodeA
+    ]
+
+    // start the demo
+    const eventsList = document.getElementById('events')
+    const cy = initCytoscape()
+
+    // init with the first event
+    updateGraph(0)
+
+    function updateGraph(actualEventIndex) {
+
+      // copy for immutability
+      let actualEvents= events.map(e => Object.assign({}, e))
+
+      actualEvents.length = actualEventIndex+1
+
+      // compute graph and show it
+      let g = new Graph(actualEvents)
+      updateNetworkViz(cy, g)
+      updateList(actualEventIndex)
+
+      // add events number
+      document.getElementById('eventsCount').innerHTML =
+        `Currently,${actualEvents.length} events are active.\n
+        There is ${g.nodes().length} nodes in the graph.\n
+        There is ${g.edges().length}edges in the graph.\n
+        `
+
+
+    }
+
+    function updateNetworkViz(cy, g) {
+
+        //parse elements for display in cytoscape
+        let nodes = g.nodes()
+          .map( (n,i) => ({
+            group : 'nodes',
+            data : {
+              id : n.id,
+              label : n.label
+            },
+            position : {
+              x: (i*75 + 200),
+              y : (i%2*150 + 200)
+            }
+          })
+        )
+
+        let edges = g.edges()
+          .map( e => ({
+              group : 'edges',
+              source : e.source,
+              target : e.target,
+              data : e
+            })
+          )
+
+        // clean and update the graph using cytoscape
+        cy.remove('*')
+        cy.add(nodes)
+        cy.add(edges)
+
+        cy.zoom( cy.zoom().level-3 )
+        cy.center()
+
+    }
+
+    function updateList(actualEventIndex) {
+
+      // clear list
+      eventsList.innerHTML = ''
+
+      // show events
+      events.forEach( (event,i) => {
+
+        // add items
+        let li = document.createElement('li')
+        let a = document.createElement('a')
+
+        a.href= `#${event.id}`
+        a.setAttribute('data-index', i)
+        a.onclick = click
+
+        if(i <= actualEventIndex) a.classList.add("selected")
+
+        a.innerHTML= `${event.instruction.action.toUpperCase()} on ${getDate(event.ts)}`
+
+        eventsList.appendChild(li)
+          .appendChild(a)
+      })
+    }
+
+    function click(e) {
+      updateGraph(parseInt(this.dataset.index))
+    }
+
+
+    // draw empty graph
+    function initCytoscape() {
+      return cytoscape({
+        container: document.getElementById('cy'),
+        boxSelectionEnabled: true,
+        selectable : true,
+        userZoomingEnabled: false,
+        layout: {　name: 'preset'　},
+        style: [
+          {
+            selector: 'node',
+            style: {
+              'height': 10,
+              'width': 10,
+              'background-color': 'steelblue',
+              'label': d => d.data('label')
+            }
+          },
+          {
+            selector: 'edge',
+            style: {
+              'width': 2,
+              'opacity': 0.5,
+              'line-color': 'steelblue'
+            }
+          }
+        ]
+      })
+    }
+
+    function getDate(epoch) {
+      let date = new Date(epoch);
+      let d =
+        date.getMonth() + "/" +
+        date.getDate() + "/" +
+        date.getFullYear() + " " +
+        date.getHours() + ":" +
+        date.getMinutes() + ":" +
+        date.getSeconds() + ":" +
+        date.getMilliseconds()
+      return d
+    }
 
   </script>
-  <!-- <script src="./commits.js" defer></script> -->
+  <!-- <script src="./events.js" defer></script> -->
 </body>
 </html>
