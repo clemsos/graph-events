@@ -27,36 +27,43 @@ class GraphEvent {
     else {
       this.id = crypto.randomBytes(20).toString('hex')
       this.instruction = rawInstruction
-      this.ts = (new Date()).getTime()
+      let now  = new Date()
+      this.ts = now.getTime()
     }
 
-    if ( ! this.isValidQuery(this.instruction) ) {
-      throw new Error('Instruction is not valid')
-    }
+    this.isValidEvent(this.instruction)
+
   }
 
   /**
-  * Check if object is a valid query object
-  * @name isValidQuery
-  * @param {Object} a selector object
+  * Check if the instructions passed are valid
+  * @name isValidEvent
+  * @param {Object} instruction an instruction object
   * @return {Boolean} validty
   */
-  isValidQuery(instruction) {
+  isValidEvent(instruction) {
+
+    if (!instruction instanceof Object) {
+      throw new Error(`Wrong event object type :${typeof instruction}`)
+    }
 
     // check type
-    if(!["create", "update", "delete"].includes(instruction.action))
-      return false
+    if(!["create", "update", "delete"].includes(instruction.action)) {
+      throw new Error(`Wrong event action :${instruction.action}`)
+    }
 
     // check keys
-    let validKeys = ['action', 'data']
+    let validKeys = ['action'];
     if (instruction.action === "update" || instruction.action === "delete" )
       validKeys.push('selector')
+    if (instruction.action === "create" || instruction.action === "update")
+      validKeys.push('data')
 
-    return (
-      instruction instanceof Object
-      &&
-      equal( Object.keys(instruction), validKeys)
-    )
+    if (!equal( Object.keys(instruction).sort(), validKeys.sort())) {
+      throw new Error(`Wrong instruction data :${Object.keys(instruction)}. Excepted : ${validKeys}`)
+    }
+
+    return true
   }
 
   toJSON() {

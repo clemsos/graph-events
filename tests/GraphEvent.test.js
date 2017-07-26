@@ -29,9 +29,13 @@ describe('GraphEvent', () => {
       new GraphEvent(instruction)
     })
 
+    it('does accept all kind of instructions', () =>{
+      instructions.forEach(instruction => new GraphEvent(instruction))
+    })
+
     it('does not accept an array of instructions', () =>{
       assert.throws(function() {
-          new GraphEvent(instructions)
+          new GraphEvent([])
       }, Error)
     })
   })
