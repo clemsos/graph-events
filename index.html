@@ -1,0 +1,263 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Graph Event - Example</title>
+
+    <style>
+        html, body{
+          height:100%;
+          font-family: sans-serif;
+          font-size: 10pt;
+          margin: 0;
+          padding: 0;
+          position: relative;
+        }
+
+        #wrapper {
+          margin: auto;
+          width : 80vh;
+        }
+
+        h1 {
+          margin: 0;
+          padding: 30px 0;
+        }
+
+        a {
+          text-decoration: none:line-through;
+          color : #777;
+        }
+
+        a.selected,
+        a.selected:visited {
+          color : black
+        }
+
+        #event {
+        }
+
+        #cy {
+          position: absolute;
+          z-index: -999;
+          width:50% ;
+          height:50% ;
+          background: #EEE;
+        }
+
+
+    </style>
+</head>
+<body>
+  <div id="wrapper">
+
+    <h1>graph-events basic example</h1>
+
+    <p>
+      This example demonstrates how networks can be stored as events.
+      <br>
+      Click on the event to show them
+    </p>
+
+    <div id="events"></div>
+    <div id="eventsCount"></div>
+    <br>
+    <div id="cy"></div>
+
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/2.7.7/cytoscape.min.js" ></script>
+  <script src="js/graph-events.min.js"></script>
+
+  <script>
+
+    // init with some data and events
+    const nodes = [
+      { id : 1, label : "Node A", type : "node" },
+      { id : 2, label : "Node B", type : "node" },
+      { id : 3, label : "Node C", type : "node" },
+      { id : 4, label : "Node D", type : "node" },
+      { id : 5, label : "Node E", type : "node" }
+    ]
+
+    const edges = [
+      { source : 1, target : 2, label : "Edge A", type : "edge" },
+      { source : 2, target : 3, label : "Edge B", type : "edge" },
+      { source : 3, target : 1, label : "Edge C", type : "edge" },
+      { source : 3, target : 4, label : "Edge D", type : "edge" },
+      { source : 2, target : 4, label : "Edge E", type : "edge" }
+    ]
+
+    // create nodes and edges
+    const eventCreateNodes = new GraphEvent({
+      action : "create",
+      data : nodes
+    })
+
+    const eventCreateEdges = new GraphEvent({
+      action : "create",
+      data : edges
+    })
+
+    // make some changes
+    const eventUpdateNodeB = new GraphEvent({
+      action : "update",
+      selector : { id : 2, type : "node" },
+      data : { label : "My Very Cool Node Inc." }
+    })
+
+    const eventDeleteNodeA = new GraphEvent({
+      action : "delete",
+      selector : { id : 5, type : "node" }
+    })
+
+    const events = [
+      eventCreateNodes,
+      eventCreateEdges,
+      eventUpdateNodeB,
+      eventDeleteNodeA
+    ]
+
+    // start the demo
+    const eventsList = document.getElementById('events')
+    const cy = initCytoscape()
+
+    // init with the first event
+    updateGraph(0)
+
+    function updateGraph(actualEventIndex) {
+
+      // copy for immutability
+      let actualEvents= events.map(e => Object.assign({}, e))
+
+      actualEvents.length = actualEventIndex+1
+
+      // compute graph and show it
+      let g = new Graph(actualEvents)
+      updateNetworkViz(cy, g)
+      updateList(actualEventIndex)
+
+      // add events number
+      document.getElementById('eventsCount').innerHTML =
+        `Currently,${actualEvents.length} events are active.\n
+        There is ${g.nodes().length} nodes in the graph.\n
+        There is ${g.edges().length}edges in the graph.\n
+        `
+
+
+    }
+
+    function updateNetworkViz(cy, g) {
+
+        //parse elements for display in cytoscape
+        let nodes = g.nodes()
+          .map( (n,i) => ({
+            group : 'nodes',
+            data : {
+              id : n.id,
+              label : n.label
+            },
+            position : {
+              x: (i*75 + 200),
+              y : (i%2*150 + 200)
+            }
+          })
+        )
+
+        let edges = g.edges()
+          .map( e => ({
+              group : 'edges',
+              source : e.source,
+              target : e.target,
+              data : e
+            })
+          )
+
+        // clean and update the graph using cytoscape
+        cy.remove('*')
+        cy.add(nodes)
+        cy.add(edges)
+
+        cy.zoom( cy.zoom().level-3 )
+        cy.center()
+
+    }
+
+    function updateList(actualEventIndex) {
+
+      // clear list
+      eventsList.innerHTML = ''
+
+      // show events
+      events.forEach( (event,i) => {
+
+        // add items
+        let li = document.createElement('li')
+        let a = document.createElement('a')
+
+        a.href= `#${event.id}`
+        a.setAttribute('data-index', i)
+        a.onclick = click
+
+        if(i <= actualEventIndex) a.classList.add("selected")
+
+        a.innerHTML= `${event.instruction.action.toUpperCase()} on ${getDate(event.ts)}`
+
+        eventsList.appendChild(li)
+          .appendChild(a)
+      })
+    }
+
+    function click(e) {
+      updateGraph(parseInt(this.dataset.index))
+    }
+
+
+    // draw empty graph
+    function initCytoscape() {
+      return cytoscape({
+        container: document.getElementById('cy'),
+        boxSelectionEnabled: true,
+        selectable : true,
+        userZoomingEnabled: false,
+        layout: {　name: 'preset'　},
+        style: [
+          {
+            selector: 'node',
+            style: {
+              'height': 10,
+              'width': 10,
+              'background-color': 'steelblue',
+              'label': d => d.data('label')
+            }
+          },
+          {
+            selector: 'edge',
+            style: {
+              'width': 2,
+              'opacity': 0.5,
+              'line-color': 'steelblue'
+            }
+          }
+        ]
+      })
+    }
+
+    function getDate(epoch) {
+      let date = new Date(epoch);
+      let d =
+        date.getMonth() + "/" +
+        date.getDate() + "/" +
+        date.getFullYear() + " " +
+        date.getHours() + ":" +
+        date.getMinutes() + ":" +
+        date.getSeconds() + ":" +
+        date.getMilliseconds()
+      return d
+    }
+
+  </script>
+  <!-- <script src="./events.js" defer></script> -->
+</body>
+</html>
