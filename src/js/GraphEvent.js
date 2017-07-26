@@ -3,39 +3,36 @@ import equal  from 'deep-equal'
 
 /**
  *
- * The GraphEvent class is will store a diff that can be applied to a graph
+ * The GraphEvent class is will store a instruction that can be applied to a graph
  * Each commit has a unique ID.
  * Each commit is serializable, to make it easy to be stored and create undo/redo.
  *
  * @name GraphEvent
  * @kind class
- * @param {Array} instructions A list of RAW instructions
- * @param {String} instructions  A JSON-stringified GraphEvent object
+ * @param {Object} instruction An instruction
+ * @param {String} instruction  A JSON-stringified GraphEvent object
  * @example var commit = new GraphEvent(...)
  */
 class GraphEvent {
 
-  constructor(instructions) {
+  constructor(rawInstruction) {
 
-    if (typeof(instructions) == 'string' ) {
-      let { id, diff, ts }= this.fromJSON(instructions)
+    // parse string from raw JSON
+    if (typeof(rawInstruction) == 'string' ) {
+      let { id, instruction, ts }= this.fromJSON(rawInstruction)
       this.id = id
-      this.diff = diff
+      this.instruction = instruction
       this.ts = ts
     }
-    else if (instructions instanceof Array ) {
-      this.diff = this.getEmptyDiff()
+    else {
       this.id = crypto.randomBytes(20).toString('hex')
-      this.ts = new Date()
-      this.parseInstructions(instructions)
+      this.instruction = rawInstruction
+      this.ts = (new Date()).getTime()
     }
-    else if ( this.isValidQuery(instructions) ) {
-      this.id = crypto.randomBytes(20).toString('hex')
-      this.ts = new Date()
-      this.diff = this.getEmptyDiff()
-      this.parseInstructions( [instructions] )
+
+    if ( ! this.isValidQuery(this.instruction) ) {
+      throw new Error('Instruction is not valid')
     }
-    else throw new Error('Instruction is not valid ')
   }
 
   /**
@@ -45,65 +42,25 @@ class GraphEvent {
   * @return {Boolean} validty
   */
   isValidQuery(instruction) {
+
+    // check type
+    if(!["create", "update", "delete"].includes(instruction.action))
+      return false
+
+    // check keys
+    let validKeys = ['action', 'data']
+    if (instruction.action === "update" || instruction.action === "delete" )
+      validKeys.push('selector')
+
     return (
       instruction instanceof Object
-      && equal( Object.keys(instruction), ['action', 'selector', 'data'] )
+      &&
+      equal( Object.keys(instruction), validKeys)
     )
   }
 
-  /**
-  * Get empty model diff
-  * @name getEmptyDiff
-  * @returns { Object} an empty diff
-  */
-  getEmptyDiff() {
-    return {
-      add : [],
-      update : [],
-      delete : []
-    }
-  }
-
-  parseAction(q) {
-    switch (q.action) {
-      case 'ADD' :
-        return { type : 'add',  elements : Object.assign(q.selector, q.options) }
-      case 'LINK' :
-        return { type : 'add',  elements : Object.assign(q.selector, q.options) }
-      case 'SET' :
-        return { type : 'update', elements : Object.assign(q.selector, q.options) }
-      case 'DELETE' :
-        return  { type : 'delete', elements : elements }
-      default :
-        return {}
-    }
-  }
-
-  /**
-  * parse an Array of raw instructions into a proper diff
-  * @name parseInstructions
-  * @param {Object} instruction  A single instructions
-  *
-  */
-  parseInstruction(q) {
-    if (! this.isValidQuery(q)) throw new Error('Instruction is not valid')
-    let parsed = this.parseAction(q)
-    if(parsed.type) this.diff[ parsed.type ].push(parsed.elements)
-  }
-
-  /**
-  * parse an Array of raw instructions into a proper diff
-  * @name parseInstructions
-  * @param {Array} instructions  An array of instructions
-  *
-  */
-  parseInstructions(instructions) {
-    if( instructions.length == 0 )  throw new Error('Instructions array can not be empty')
-    instructions.forEach( i => this.parseInstruction( i ))
-  }
-
   toJSON() {
-    return JSON.stringify({ id : this.id, diff : this.diff, ts : this.ts })
+    return JSON.stringify({ id : this.id, instruction : this.instruction, ts : this.ts })
   }
 
   fromJSON(json) {

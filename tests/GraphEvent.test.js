@@ -2,8 +2,40 @@ import { assert }  from 'chai'
 import GraphEvent  from '../src/js/GraphEvent.js'
 import moment from 'moment'
 
-describe('GraphEvent', () => {
+// some test data
+const nodes = [
+  { id : 1, label : "Node A", type : "node" },
+  { id : 2, label : "Node B", type : "node" },
+  { id : 3, label : "Node C", type : "node" }
+]
 
+const edges = [
+  { source : 1, target : 2, label : "Edge A -> B", type : "edge" },
+  { source : 2, target : 3, label : "Edge B -> C", type : "edge" }
+]
+
+let instruction = {
+  action : "create",
+  data : nodes
+}
+
+let instructions = [
+  {
+    action : "create",
+    data : nodes
+  },
+  {
+    action : "create",
+    data : edges
+  },
+  {
+    action : "update",
+    selector : { id : 1, type : "node" },
+    data : { "label" : "Renamed node A" }
+  }
+]
+
+describe('GraphEvent', () => {
 
   describe('init', () => {
     it('does not accept empty params', () =>{
@@ -28,8 +60,10 @@ describe('GraphEvent', () => {
       new GraphEvent(instruction)
     })
 
-    it('does accept an array of instructions', () =>{
-      new GraphEvent(instructions)
+    it('does not accept an array of instructions', () =>{
+      assert.throws(function() {
+          new GraphEvent(instructions)
+      }, Error)
     })
   })
 
@@ -59,32 +93,32 @@ describe('GraphEvent', () => {
     })
 
   })
+  //
+  // describe('features', () =>{
+  //
+  //   it('should store creation of nodes', () =>{
+  //     let c = new GraphEvent(instruction)
+  //     assert.equal(c.diff.add.length, 1)
+  //   })
+  //
+  //   it('should store creation of nodes', () =>{
+  //     let c = new GraphEvent(instructions)
+  //     assert.equal(c.diff.add.length, 6)
+  //   })
+  //
+  //   describe("LINK", () => {
+  //     it('should add both source and target nodes', () =>{
+  //       const instruction = new TopoQuery('Joe loves Jack')
+  //       let c = new GraphEvent(instruction)
+  //       console.log(c);
+  //       // assert.equal(c.diff.add.length, 3)
+  //       // console.log(c.diff)
+  //     })
+  //   })
+  //
+  // })
 
-  describe('features', () =>{
-
-    it('should store creation of nodes', () =>{
-      let c = new GraphEvent(instruction)
-      assert.equal(c.diff.add.length, 1)
-    })
-
-    it('should store creation of nodes', () =>{
-      let c = new GraphEvent(instructions)
-      assert.equal(c.diff.add.length, 6)
-    })
-
-    describe("LINK", () => {
-      it('should add both source and target nodes', () =>{
-        const instruction = new TopoQuery('Joe loves Jack')
-        let c = new GraphEvent(instruction)
-        console.log(c);
-        // assert.equal(c.diff.add.length, 3)
-        // console.log(c.diff)
-      })
-    })
-
-  })
-
-  it('should work with a bunch of queries', () => {
-    let c = new GraphEvent( queries.map(q => new TopoQuery(q)) )
-  })
+  // it('should work with a bunch of queries', () => {
+  //   let c = new GraphEvent( queries.map(q => new TopoQuery(q)) )
+  // })
 })
