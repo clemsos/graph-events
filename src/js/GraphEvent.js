@@ -47,7 +47,7 @@ class GraphEvent {
   isValidQuery(instruction) {
     return (
       instruction instanceof Object
-      && equal( Object.keys(instruction), ['q', 'selector', 'action', 'options'] )
+      && equal( Object.keys(instruction), ['action', 'selector', 'data'] )
     )
   }
 

@@ -28,12 +28,21 @@ const edges = [
 ]
 
 // create nodes and edges
-const eventCreateNodes = new GraphEvent("create", "nodes", nodes)
-const eventCreateEdges = new GraphEvent("create", "edges", nodes)
+const eventCreateNodes = new GraphEvent({
+  action : "create",
+  data : nodes
+})
+const eventCreateEdges = new GraphEvent({
+  action : "create",
+  data : edges
+})
 
 // make some changes
-const eventUpdateNodeA = new GraphEvent({ type : "node",  id : 1, "label" : "Renamed node A" })
-
+const eventUpdateNodeA = new GraphEvent({
+  action : "update",
+  selector : { id : 1, type : "node" },
+  data : { "label" : "Renamed node A" }
+})
 
 const graphInit = Graph([eventCreateNodes, eventCreateEdges ])
 const graphFinal = Graph([...graphInit, eventUpdateNodeA])
