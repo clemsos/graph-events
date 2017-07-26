@@ -16,7 +16,7 @@ const gulp = require( 'gulp' ),
 
 const TEST_FILES = './tests/*.test.js'
 const JS_FILES = './src/js/**/*.js'
-const SRC_FILE = './src/js/TopoQuery.js'
+const SRC_FILE = './src/js/GraphEvent.js'
 
 
 gulp.task( 'dev', () => {
@@ -32,7 +32,7 @@ gulp.task( 'dev', () => {
         } )
         .transform(envify)
         .bundle()
-        .pipe( source( 'topoquery.js' ) )
+        // .pipe( source( 'topoquery.js' ) )
         .pipe( buffer() )
         .pipe( gulp.dest( './dist/js' ) )
         .pipe( livereload() )

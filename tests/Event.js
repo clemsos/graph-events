@@ -1,70 +1,57 @@
 import { assert }  from 'chai'
-import Commit  from '../src/js/TopoQuery.commit.js'
-import TopoQuery  from '../src/js/TopoQuery.parser.js'
+import GraphEvent  from '../src/js/GraphEvent.js'
 import moment from 'moment'
-import queries from './queries.js'
 
-const qs = [
-  'node add id:Jon color:blue',
-  'node add id:Jack',
-  'node add id:Joe',
-  'Joe likes Jack',
-  'Jon hates Jack',
-  'Jon ignores Jack'
-]
+describe('GraphEvent', () => {
 
-describe('Commit', () => {
-
-  const instruction = new TopoQuery('Joe loves Jack')
-  const instructions = qs.map(q => new TopoQuery(q) )
 
   describe('init', () => {
     it('does not accept empty params', () =>{
       assert.throws(function() {
-          new Commit()
+          new GraphEvent()
       }, Error)
     })
 
     it('does not accept an empty Array', () =>{
       assert.throws(function() {
-          new Commit([])
+          new GraphEvent([])
       }, Error)
     })
 
     it('does not accept weird objects', () =>{
       assert.throws(function() {
-          new Commit({ 'bla' : 'loves'})
+          new GraphEvent({ 'bla' : 'loves'})
       }, Error)
     })
 
     it('does accept a single instruction', () =>{
-      new Commit(instruction)
+      new GraphEvent(instruction)
     })
 
     it('does accept an array of instructions', () =>{
-      new Commit(instructions)
+      new GraphEvent(instructions)
     })
   })
 
   describe('storage', () => {
 
     it('has a unique ID', () => {
-      let commitA = new Commit(instruction)
-      let commitB = new Commit(instruction)
+      let commitA = new GraphEvent(instruction)
+      let commitB = new GraphEvent(instruction)
       assert.equal(typeof(commitA.id), 'string')
       assert.isAtLeast(commitA.id.length, 20)
       assert.notEqual(commitA.id, commitB.id)
     })
 
     it('stores a date Object when created', () =>{
-      let commitA = new Commit(instruction)
+      let commitA = new GraphEvent(instruction)
       assert.isTrue(moment(commitA.ts).isValid())
     })
 
     it('export/import JSON correctly', () => {
-      let commitA = new Commit(instruction)
+      let commitA = new GraphEvent(instruction)
       let j = commitA.toJSON()
-      let commitB = new Commit(j)
+      let commitB = new GraphEvent(j)
       assert.equal(commitA.id, commitB.id)
       assert.deepEqual(commitA.diff, commitB.diff)
       assert.isTrue(moment(commitA.ts).isValid())
@@ -76,19 +63,20 @@ describe('Commit', () => {
   describe('features', () =>{
 
     it('should store creation of nodes', () =>{
-      let c = new Commit(instruction)
+      let c = new GraphEvent(instruction)
       assert.equal(c.diff.add.length, 1)
     })
 
     it('should store creation of nodes', () =>{
-      let c = new Commit(instructions)
+      let c = new GraphEvent(instructions)
       assert.equal(c.diff.add.length, 6)
     })
 
     describe("LINK", () => {
       it('should add both source and target nodes', () =>{
         const instruction = new TopoQuery('Joe loves Jack')
-        // let c = new Commit(instruction)
+        let c = new GraphEvent(instruction)
+        console.log(c);
         // assert.equal(c.diff.add.length, 3)
         // console.log(c.diff)
       })
@@ -97,6 +85,6 @@ describe('Commit', () => {
   })
 
   it('should work with a bunch of queries', () => {
-    let c = new Commit( queries.map(q => new TopoQuery(q)) )
+    let c = new GraphEvent( queries.map(q => new TopoQuery(q)) )
   })
 })

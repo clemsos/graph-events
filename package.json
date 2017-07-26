@@ -1,14 +1,14 @@
 {
-  "name": "topoquery",
+  "name": "graph-events",
   "version": "0.0.1",
-  "description": "Query language for networks manipulation",
+  "description": "Manipulate and store networks using events",
   "main": "topoquery.js",
   "scripts": {
     "test": "gulp test"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/topogram/topoquery.git"
+    "url": "git+https://github.com/clemsos/graph-events.git"
   },
   "keywords": [
     "networks",
@@ -20,7 +20,7 @@
   "author": "Clément Renaud <hi@clementrenaud.com> (http://clementrenaud.com)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/topogram/topoquery/issues"
+    "url": "https://github.com/clemsos/graph-events/issues"
   },
   "devDependencies": {
     "babel-core": "^6.13.2",

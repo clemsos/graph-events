@@ -3,17 +3,17 @@ import equal  from 'deep-equal'
 
 /**
  *
- * The Commit class is will store a diff that can be applied to a graph
+ * The GraphEvent class is will store a diff that can be applied to a graph
  * Each commit has a unique ID.
  * Each commit is serializable, to make it easy to be stored and create undo/redo.
  *
- * @name Commit
+ * @name GraphEvent
  * @kind class
  * @param {Array} instructions A list of RAW instructions
- * @param {String} instructions  A JSON-stringified Commit object
- * @example var commit = new Commit(...)
+ * @param {String} instructions  A JSON-stringified GraphEvent object
+ * @example var commit = new GraphEvent(...)
  */
-class Commit {
+class GraphEvent {
 
   constructor(instructions) {
 
@@ -111,4 +111,4 @@ class Commit {
   }
 }
 
-export default Commit
+export default GraphEvent
