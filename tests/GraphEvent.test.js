@@ -1,39 +1,8 @@
 import { assert }  from 'chai'
-import GraphEvent  from '../src/js/GraphEvent.js'
 import moment from 'moment'
 
-// some test data
-const nodes = [
-  { id : 1, label : "Node A", type : "node" },
-  { id : 2, label : "Node B", type : "node" },
-  { id : 3, label : "Node C", type : "node" }
-]
-
-const edges = [
-  { source : 1, target : 2, label : "Edge A -> B", type : "edge" },
-  { source : 2, target : 3, label : "Edge B -> C", type : "edge" }
-]
-
-let instruction = {
-  action : "create",
-  data : nodes
-}
-
-let instructions = [
-  {
-    action : "create",
-    data : nodes
-  },
-  {
-    action : "create",
-    data : edges
-  },
-  {
-    action : "update",
-    selector : { id : 1, type : "node" },
-    data : { "label" : "Renamed node A" }
-  }
-]
+import { instruction, instructions }  from './testData.js'
+import GraphEvent  from '../src/js/GraphEvent.js'
 
 describe('GraphEvent', () => {
 
