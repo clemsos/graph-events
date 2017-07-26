@@ -10,13 +10,14 @@ const gulp = require( 'gulp' ),
     gutil = require('gulp-util'),
     envify = require('envify'),
     documentation = require('gulp-documentation'),
-    babel = require('babel-core/register')
+    babel = require('babel-core/register'),
+    babelify = require('babelify')
     // istanbul = require('gulp-istanbul');
 
 
 const TEST_FILES = './tests/*.test.js'
 const JS_FILES = './src/js/**/*.js'
-const SRC_FILE = './src/js/GraphEvent.js'
+const SRC_FILE = './src/index.js'
 
 
 gulp.task( 'dev', () => {
@@ -32,7 +33,7 @@ gulp.task( 'dev', () => {
         } )
         .transform(envify)
         .bundle()
-        // .pipe( source( 'topoquery.js' ) )
+        .pipe( source( './src/js/index.js' ) )
         .pipe( buffer() )
         .pipe( gulp.dest( './dist/js' ) )
         .pipe( livereload() )
@@ -72,17 +73,16 @@ gulp.task( 'lint', () => {
         .pipe( eslint.format() )
 } )
 
-gulp.task( 'build', [ 'test', 'lint' ], () => {
+gulp.task( 'build', [ 'test'], () => {
     return browserify( {
             entries: SRC_FILE,
             debug: true
-        } )
-        .transform( 'babelify', {
-            presets: [ 'es2015' ]
-        } )
+        })
+        .transform(babelify)
         .transform(envify)
         .bundle()
-        .pipe( source( 'topoquery.min.js' ) )
+        .on('error',  gutil.log)
+        .pipe( source( 'graph-events.min.js' ) )
         .pipe( buffer() )
         .pipe( sourcemaps.init() )
         .pipe( uglify() )
