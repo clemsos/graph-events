@@ -12,6 +12,8 @@
 * All modifications are stored using **commits**, so you can easily maintain a clean state of you graphs and do / undo / moderate changes.
 * Everything is serializable in **JSON**, so all data can be stored in databases, plain files or just plain arrays.
 
+See a [live demo](http://clemsos.github.io/graph-events/).
+
 ```js
 // example without browser
 // use `node graph-events-demo.js` to test
