@@ -1,10 +1,11 @@
 {
   "name": "graph-events",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Manipulate and store networks using events",
   "main": "./src/js/index.js",
   "scripts": {
     "test": "gulp test",
+    "deploy" : "gulp deploy",
     "prepublish": "gulp build && node_modules/babel-cli/bin/babel.js src --out-dir lib"
   },
   "repository": {
