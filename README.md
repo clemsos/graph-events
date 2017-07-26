@@ -42,7 +42,7 @@ const eventCreateEdges = new GraphEvent({
 })
 
 // make some changes
-const eventUpdateNodeA = new GraphEvent({
+const eventDeleteNodeA = new GraphEvent({
   action : "delete",
   selector : { id : 1, type : "node" }
 })
