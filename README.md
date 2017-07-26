@@ -1,8 +1,8 @@
-# Topo Event
+# Graph Event
 
     Ongoing work - not ready to use yet
 
-**Topo Event** is a storage system to create and manipulate states of networks and graphs based on the evolution of their properties over time.
+**Graph Event** is a storage system to create and manipulate states of networks and graphs based on the evolution of their properties over time.
 
 
 ## How it Works
