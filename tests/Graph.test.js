@@ -51,7 +51,7 @@ describe('Graph', () => {
     it('does update edges properly', ()=> {
       instructions.push({
         action : 'update',
-        selector : {type : 'edge', target : 1, source : 2},
+        selector : {type : 'edge', source : 1, target : 2},
         data : { label : 'Youpi!' }
       })
 
@@ -61,6 +61,7 @@ describe('Graph', () => {
       assert.equal(g.nodes().length, nodes.length)
       assert.equal(g.edges().length, edges.length)
       assert.equal(g.edges()[0].label, "Youpi!")
+      assert.equal(g.edges()[1].label, "Edge B -> C")
     })
 
     it('does delete nodes properly', ()=> {

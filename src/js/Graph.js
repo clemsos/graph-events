@@ -66,14 +66,20 @@ class Graph {
     //reassigned without selected nodes
     let els = elements
       .map(el => {
-        Object.keys(selector)
-          .forEach(k =>
-            el[k] === selector[k] ? // if any value correspond to the filter
-              Object.assign(el, data) // apply this value
-              :
-              el
-          )
-        return el
+
+        let isSelected = equal(
+          Object.keys(selector)
+            .filter(k => el[k] === selector[k])
+            ,
+          Object.keys(selector)
+        )
+
+        return isSelected ?
+            Object.assign(el, data) // apply this value
+          :
+            el
+
+
       })
 
     this.elements = els
