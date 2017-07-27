@@ -9,7 +9,7 @@
 
 ## How it Works
 
-* All modifications are stored using **commits**, so you can easily maintain a clean state of you graphs and do / undo / moderate changes.
+* Graph are stored using **events**, so you can easily maintain states and do / undo / moderate changes.
 * Everything is serializable in **JSON**, so all data can be stored in databases, plain files or just plain arrays.
 
 See a [live demo](http://clemsos.github.io/graph-events/).
@@ -63,7 +63,7 @@ console.log( graphFinal.nodes().length + " nodes" )
 */
 ```
 
-See the [examples folder](./examples) to see it in use.
+Check the [examples folder](./examples) to see how it is used.
 
 
 ### Commands
@@ -78,7 +78,6 @@ See the [examples folder](./examples) to see it in use.
 
     npm run prepublish
     npm publish
-
 
 ### Test
 
