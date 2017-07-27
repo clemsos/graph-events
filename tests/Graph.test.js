@@ -46,6 +46,7 @@ describe('Graph', () => {
       assert.equal(g.nodes().length, nodes.length)
       assert.equal(g.edges().length, edges.length)
       assert.equal(g.nodes()[0].label, "Renamed node A")
+      assert.equal(g.nodes()[1].label, "Node B")
     })
 
     it('does update edges properly', ()=> {
